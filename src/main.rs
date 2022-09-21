@@ -141,16 +141,7 @@ fn randomize_board(width: usize, height: usize) -> Vec<bool> {
 /// Get the state of a cell of the board
 /// An outside cell is dead...
 fn get_cell_value(x: i32, y: i32, width: i32, height: i32, board: &Vec<bool>) -> bool {
-    if x >= width {
-        false
-    }
-    else if x < 0 {
-        false
-    }
-    else if y < 0 {
-        false
-    }
-    else if y >= height {
+    if x >= width || x < 0 || y < 0 || y >= height {
         false
     }
     else {
