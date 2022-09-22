@@ -3,7 +3,6 @@ use macroquad::rand;
 use macroquad::rand::rand;
 
 use std::time::{SystemTime, UNIX_EPOCH};
-use std::cmp;
 
 const WIDTH: usize = 1280;
 const HEIGHT: usize = 720;
@@ -73,10 +72,9 @@ async fn main() {
 
             }
 
-            // Copy temp board to active board
-            for (index, cell) in temp_board.iter().enumerate() {
-                board[index] = *cell;
-            }
+            // Copy temporary board to active board
+            board = temp_board.clone();
+
         }
         // If paused, draw or remove cells
         else if paused {
