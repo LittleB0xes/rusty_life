@@ -4,7 +4,9 @@ use macroquad::rand::rand;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-
+const WIDTH: usize = 1280;
+const HEIGHT: usize = 720;
+const MARGIN: usize = 0;
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -17,8 +19,10 @@ async fn main() {
     let mut frame_count: u32 = 0;
     let mut board: Vec<bool>;
     let mut temp_board: Vec<bool>;
-    let width = 400;
-    let height = 100;
+    let mut cell_size = 6.0;
+
+    let width = WIDTH / cell_size as usize;
+    let height = (HEIGHT - MARGIN) / cell_size as usize;
 
     let mut mouse_cell = Vec2::ZERO;
 
@@ -53,7 +57,6 @@ async fn main() {
                     }
                 }
 
-
                 // rules of life 
                 if count == 3 && !cell {
                     temp_board[index] = true;
@@ -73,9 +76,9 @@ async fn main() {
             }
         }
         // If paused, draw or remove cells
-        else {
-            mouse_cell.x = (mouse_position().0 / 6.0).round();
-            mouse_cell.y = (mouse_position().1 / 6.0).round();
+        else if paused {
+            mouse_cell.x = ((mouse_position().0 - 0.5 * cell_size) / cell_size).round();
+            mouse_cell.y = ((mouse_position().1 - 0.5 * cell_size) / cell_size).round();
             if is_mouse_button_pressed(MouseButton::Left) {
                 let index = (mouse_cell.x + mouse_cell.y * width as f32) as usize;
                 board[index] = !board[index];
@@ -87,21 +90,35 @@ async fn main() {
         // Draw board
         for (index, cell) in board.iter().enumerate() {
             if *cell {
-                let x = (index % width) as f32 * 6.0;
-                let y = (index / width) as f32 * 6.0;
-                draw_circle_lines(x, y, 2.0, 1.0, WHITE);
+                draw_circle_lines(
+                    0.5 * cell_size + (index % width) as f32 * cell_size,
+                    0.5 * cell_size + (index / width) as f32 * cell_size,
+                    0.4 * cell_size,
+                    cell_size / 6.0,
+                    WHITE);
             }
         }
+
+
+        // Show some data
+        draw_text(&format!("{}", get_fps()), 10.0, 700.0, 16.0, WHITE);
 
 
         // Check inputs
         if is_key_pressed(KeyCode::R) {
             board = randomize_board(width, height);
-        } else if is_key_pressed(KeyCode::Space) {
+        }
+        else if is_key_pressed(KeyCode::Space) {
             paused = !paused;
-        } else if is_key_pressed(KeyCode::C) {
+        }
+        else if is_key_pressed(KeyCode::C) {
             board = clear_board(width, height);
-
+        }
+        else if is_key_pressed(KeyCode::D) {
+            cell_size += 1.0;
+        }
+        else if is_key_pressed(KeyCode::S) {
+            cell_size -= 1.0;
         }
 
         frame_count += 1; 
@@ -117,19 +134,16 @@ fn clear_board(width: usize, height: usize) -> Vec<bool> {
 
 /// Create a randomized board
 fn randomize_board(width: usize, height: usize) -> Vec<bool> {
-    let mut board = Vec::new();
+    let mut board = vec![false; width * height];
+
     // Seed the random generator
     rand::srand(SystemTime::now()
     .duration_since(UNIX_EPOCH)
     .unwrap()
     .as_millis() as u64);
-    for _i in 0..(width * height) {
-        let alea = rand() % 100;
-        if alea < 20 {
-            board.push(true);
-        }
-        else {
-            board.push(false);
+    for i in 0..(width * height) {
+        if rand() % 100 < 20 {
+            board[i] = true
         }
     }
 
@@ -140,20 +154,38 @@ fn randomize_board(width: usize, height: usize) -> Vec<bool> {
 
 /// Get the state of a cell of the board
 /// An outside cell is dead...
-fn get_cell_value(x: i32, y: i32, width: i32, height: i32, board: &Vec<bool>) -> bool {
-    if x >= width || x < 0 || y < 0 || y >= height {
-        false
+fn get_cell_value(mut x: i32, mut y: i32, width: i32, height: i32, board: &Vec<bool>) -> bool {
+
+    // Torus world up - bottom connexion and left-right connexion
+    if x >= width {
+        x = 0;
     }
-    else {
-        board[(x + y * width) as usize]
+    else if x < 0 {
+        x = width - 1;
     }
+    if y >= height {
+        y = 0;
+    }
+    else if y < 0 {
+        y = height - 1;
+    }
+
+    board[(x + y * width) as usize]
+
+    // Ended world with definitly dead cells aroud it
+    //if x >= width || x < 0 || y < 0 || y >= height {
+    //    false
+    //}
+    //else {
+    //    board[(x + y * width) as usize]
+    //}
 }
 
 fn window_conf() -> Conf {
     Conf {
         window_title: "Game Of Live".to_owned(),
-        window_width: 1280,
-        window_height: 720,
+        window_width: WIDTH as i32,
+        window_height: HEIGHT as i32,
         fullscreen: false,
         high_dpi: true,
         ..Default::default()
