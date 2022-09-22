@@ -8,4 +8,8 @@ Another Game Of Life made with Rust and Macroquad
 
 `r` to randomize the board
 
+`d` and `s` to zoom in and zoom out the board
+
+`arrows` to move around the board
+
 When the game is paused, you can edit the board with the mouse
