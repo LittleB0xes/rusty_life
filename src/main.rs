@@ -191,7 +191,7 @@ fn get_cell_value(mut x: i32, mut y: i32, width: i32, height: i32, board: &Vec<b
 
     board[(x + y * width) as usize]
 
-    // Ended world with definitly dead cells aroud it
+    // Ended world with definitly dead cells around it
     //if x >= width || x < 0 || y < 0 || y >= height {
     //    false
     //}
