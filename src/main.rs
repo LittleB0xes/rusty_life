@@ -102,7 +102,7 @@ async fn main() {
             }
         }
         // Show some data
-        draw_text(&format!("{}", get_fps()), 10.0, 700.0, 16.0, WHITE);
+        //draw_text(&format!("{}", get_fps()), 10.0, 700.0, 16.0, WHITE);
 
         // Check inputs
         if is_key_pressed(KeyCode::R) {
