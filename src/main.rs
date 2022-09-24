@@ -77,15 +77,12 @@ async fn main() {
 
         }
         // If paused, draw or remove cells
-        else if paused {
             mouse_cell.x = ((mouse_position().0 - 0.5 * cell_size + camera.x) / cell_size).round();
             mouse_cell.y = ((mouse_position().1 - 0.5 * cell_size + camera.y) / cell_size).round();
-            if is_mouse_button_pressed(MouseButton::Left) {
+            if is_mouse_button_pressed(MouseButton::Left) && paused {
                 let index = (mouse_cell.x + mouse_cell.y * width as f32) as usize;
                 board[index] = !board[index];
             }
-
-        }
 
 
         // Draw board
